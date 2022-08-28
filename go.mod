@@ -1,4 +1,4 @@
-module syncterval
+module github.com/AspieSoft/go-syncterval
 
 go 1.19
 
