@@ -12,8 +12,8 @@ type funcInterval struct {
 	last int64
 }
 
-var funcIntervalListFast *haxmap.HashMap[uintptr, *funcInterval] = haxmap.New[uintptr, *funcInterval]()
-var funcIntervalListSlow *haxmap.HashMap[uintptr, *funcInterval] = haxmap.New[uintptr, *funcInterval]()
+var funcIntervalListFast *haxmap.Map[uintptr, *funcInterval] = haxmap.New[uintptr, *funcInterval]()
+var funcIntervalListSlow *haxmap.Map[uintptr, *funcInterval] = haxmap.New[uintptr, *funcInterval]()
 
 func init(){
 	lastMin := int64(0)
@@ -22,20 +22,22 @@ func init(){
 		for {
 			now := time.Now().UnixMilli()
 	
-			funcIntervalListFast.ForEach(func(i uintptr, fnInterval *funcInterval) {
+			funcIntervalListFast.ForEach(func(i uintptr, fnInterval *funcInterval) bool {
 				if now - fnInterval.last >= fnInterval.t {
 					fnInterval.last = now
 					(*fnInterval.fn)()
 				}
+				return true
 			})
 
 			if now - lastMin >= int64(time.Minute.Milliseconds()) {
 				lastMin = now
-				funcIntervalListSlow.ForEach(func(i uintptr, fnInterval *funcInterval) {
+				funcIntervalListSlow.ForEach(func(i uintptr, fnInterval *funcInterval) bool {
 					if now - fnInterval.last >= fnInterval.t {
 						fnInterval.last = now
 						(*fnInterval.fn)()
 					}
+					return true
 				})
 			}
 	
